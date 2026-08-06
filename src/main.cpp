@@ -10,16 +10,16 @@
 #include <Adafruit_MLX90614.h> // Added for IR Temperature
 
 // --- WIFI SETTINGS ---
-const char* ssid = "vivo";
-const char* password = "12344321";
+const char* ssid = "ssid";
+const char* password = "password";
 const char* serverName = "https://sepsis-api-server.onrender.com/predict";
 const char* patient_email = "abc@gmail.com";
 
 // --- TWILIO SMS SETTINGS ---
-const char* twilio_sid = "AC6bc3fcd0eb45bb991e3ee655ec349a2b";
-const char* twilio_token = "dfd1b25c85e046a5341ab0b6aa12803f";
-const char* twilio_phone_number = "+19895642809"; 
-const char* destination_phone_number = "+918588050956"; 
+const char* twilio_sid = "id";
+const char* twilio_token = "token";
+const char* twilio_phone_number = "twilio_num"; 
+const char* destination_phone_number = "number"; 
 unsigned long last_sms_time = 0; 
 
 // Constants
