@@ -10,16 +10,16 @@
 #include <Adafruit_MLX90614.h> // Added for IR Temperature
 
 // --- WIFI SETTINGS ---
-const char* ssid = "ssid";
-const char* password = "password";
+const char* ssid = "Laboni";
+const char* password = "12345678";
 const char* serverName = "https://sepsis-api-server.onrender.com/predict";
 const char* patient_email = "abc@gmail.com";
 
 // --- TWILIO SMS SETTINGS ---
 const char* twilio_sid = "id";
 const char* twilio_token = "token";
-const char* twilio_phone_number = "twilio_num"; 
-const char* destination_phone_number = "number"; 
+//const char* twilio_phone_number = "twilio_num"; 
+//const char* destination_phone_number = "number"; 
 unsigned long last_sms_time = 0; 
 
 // Constants
@@ -54,7 +54,19 @@ float beatsPerMinute = 0;
 int current_hr = 75;   // Default baseline
 int current_spo2 = 98; // Default baseline 
 
-void sendSMS(String message);
+//performance mesurments
+int testCount = 0;
+const int MAX_TESTS = 15;
+
+unsigned long totalLatency = 0;
+float totalThroughput = 0;
+
+unsigned long requestStartTime;
+unsigned long requestEndTime;
+
+
+
+//void sendSMS(String message);
 String urlEncode(String str);
 
 void setup() {
@@ -220,9 +232,66 @@ void loop() {
       String requestBody; 
       serializeJson(doc, requestBody);
       
+      requestStartTime = millis();
+
       int httpResponseCode = http.POST(requestBody);
 
+      requestEndTime = millis();
+
+      unsigned long latency = requestEndTime - requestStartTime;
+
+      float latencySeconds = latency / 1000.0;
+      int dataSize = requestBody.length();
+      
+      float throughput = 0;
+      if(latency > 0){
+        throughput = dataSize / latencySeconds;
+      } 
+
+
       if (httpResponseCode == 200) {
+
+        if(testCount < MAX_TESTS){
+          testCount++;
+          totalLatency += latency;
+          totalThroughput += throughput;
+        }
+        Serial.println("\n========== PERFORMANCE TEST ==========");
+        Serial.print("Test Number       : ");
+        Serial.println(testCount);
+
+        Serial.print("Data Size         : ");
+        Serial.print(dataSize);
+        Serial.println(" bytes");
+
+        Serial.print("Latency           : ");
+        Serial.print(latency);
+        Serial.println(" ms");
+
+        Serial.print("Throughput        : ");
+        Serial.print(throughput, 2);
+        Serial.println(" bytes/sec");
+
+        Serial.println("======================================");
+
+        if(testCount == MAX_TESTS){
+          Serial.println("\n====================================");
+          Serial.println("15 TESTS COMPLETED");
+          Serial.println("====================================");
+
+          Serial.print("Average Latency: ");
+          Serial.print((float)totalLatency / MAX_TESTS);
+          Serial.println(" ms");
+
+          Serial.print("Average Throughput: ");
+          Serial.print(totalThroughput / MAX_TESTS, 2);
+          Serial.println(" bytes/sec");
+
+          Serial.println("====================================");
+        }
+
+
+
         Serial.println("🌐 ✅ Connected to Cloud Server successfully!");
         
         String response = http.getString();
@@ -263,7 +332,7 @@ void loop() {
       if(qsofa_score == 2){ 
         if(millis() - last_sms_time > 60000) { 
           String sms_msg = "Alert Abnormal  Vitals. qSOFA Score: " + String(qsofa_score)  + (ai_positive ? ". AI Risk: " + String(prediction * 100, 1) + "%" : "Bad: " + comma_list);
-          sendSMS(sms_msg);
+          //sendSMS(sms_msg);
           last_sms_time = millis();
         }
       }
@@ -282,7 +351,7 @@ void loop() {
 }
 
 // --- TWILIO SMS HELPER FUNCTION ---
-void sendSMS(String message) {
+/*void sendSMS(String message) {
   if(String(twilio_sid) == "YOUR_TWILIO_ACCOUNT_SID") {
     Serial.println("⚠️ SMS Skipped: Put your real Twilio credentials in the code!");
     return; 
@@ -304,7 +373,7 @@ void sendSMS(String message) {
     Serial.println(httpResponseCode);
   }
   http.end();
-}
+}*/
 
 String urlEncode(String str) {
   String encodedString = "";
