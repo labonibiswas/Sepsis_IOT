@@ -10,10 +10,10 @@
 #include <Adafruit_MLX90614.h> // Added for IR Temperature
 
 // --- WIFI SETTINGS ---
-const char* ssid = "Laboni";
-const char* password = "12345678";
+const char* ssid = "Your SSID";
+const char* password = "Your Password";
 const char* serverName = "https://sepsis-api-server.onrender.com/predict";
-const char* patient_email = "abc@gmail.com";
+const char* patient_email = "Email";
 
 // --- TWILIO SMS SETTINGS ---
 const char* twilio_sid = "id";
